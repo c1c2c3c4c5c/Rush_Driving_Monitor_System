@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block page_scripts %}
+    <script>
+        let vehicleData = {{ vehicles_json|safe }};
+    </script>
+    <script src="/static/user_assets/vendor/libs/mapbox-gl/mapbox-gl.js"></script>
+    <script src="/static/user_assets/js/app-logistics-fleet-live.js"></script>
+{% endblock %}
+
+{% block page_styles %}
+    <link
+            rel="stylesheet"
+            href="/static/user_assets/vendor/libs/mapbox-gl/mapbox-gl.css"
+    />
+
+
+    <link
+            rel="stylesheet"
+            href="/static/user_assets/vendor/css/pages/app-logistics-fleet.css"
+    />
+{% endblock %}
+
+{% block content %}
+    <div class="card overflow-hidden mt-4">
+        <!-- Map Menu Wrapper -->
+        <div class="d-flex app-logistics-fleet-wrapper">
+            <!-- Map Menu Button when screen is < md -->
+            <div class="flex-shrink-0 position-fixed m-4 d-md-none w-auto zindex-1">
+                <button class="btn btn-label-white border border-2 zindex-2 p-2" data-bs-toggle="sidebar"
+                        data-overlay="" data-target="#app-logistics-fleet-sidebar">
+                    <i class="bx bx-menu"></i>
+                </button>
+            </div>
+
+            <!-- Map Menu -->
+            <div class="app-logistics-fleet-sidebar col h-100" id="app-logistics-fleet-sidebar">
+                <div class="card-header border-0 pt-4 pb-2 d-flex justify-content-between">
+                    <h5 class="mb-0 card-title">On-Route Vehicles</h5>
+                    <!-- Sidebar close button -->
+                    <i class="bx bx-x bx-sm cursor-pointer close-sidebar d-md-none" data-bs-toggle="sidebar"
+                       data-overlay data-target="#app-logistics-fleet-sidebar"></i>
+                </div>
+                <!-- Sidebar when screen < md -->
+                <div class="card-body p-0 logistics-fleet-sidebar-body">
+                    <!-- Menu Accordion -->
+                    <div class="accordion p-2" id="fleet" data-bs-toggle="sidebar" data-overlay
+                         data-target="#app-logistics-fleet-sidebar">
+                        {% for vehicle in vehicles %}
+                            <div class="accordion-item shadow-none border-0 collapsed  mb-0"
+                                 id="fl-{{ vehicle.id }}">
+                                <div class="accordion-header" id="fleet{{ vehicle.number }}">
+                                    <div role="button" class="accordion-button shadow-none collapsed" data-bs-toggle="collapse"
+                                         data-bs-target="#fleet{{ vehicle.id }}" aria-expanded="true"
+                                         aria-controls="fleet{{ vehicle.id }}">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-wrapper">
+                                                <div class="avatar me-3">
+                                                <span class="avatar-initial rounded-circle bg-label-secondary"><i
+                                                        class="bx bxs-truck"></i></span>
+                                                </div>
+                                            </div>
+                                            <span class="d-flex flex-column">
+                                        <span class="h6 mb-0">{{ vehicle.name }}</span>
+                                        <span class="text-muted">{{ vehicle.location }}</span>
+                                    </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="fleet{{ vehicle.id }}" class="accordion-collapse collapse"
+                                     data-bs-parent="#fleet">
+                                    <div class="accordion-body pt-3 pb-0">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <h6 class="mb-1">Delivery Process</h6>
+                                            <p class="text-body mb-1">{{ vehicle.progress }}%</p>
+                                        </div>
+                                        <div class="progress" style="height: 5px">
+                                            <div class="progress-bar" role="progressbar"
+                                                 style="width: {{ vehicle.progress }}%"
+                                                 aria-valuenow="{{ vehicle.progress }}" aria-valuemin="0"
+                                                 aria-valuemax="100"></div>
+                                        </div>
+                                        <ul class="timeline ps-3 mt-4">
+                                            {% for event in vehicle.events %}
+                                                <li class="timeline-item ps-4 border-left-dashed">
+                                                    {% if event.type == "danger" %}
+                                                        <span class="timeline-indicator-advanced timeline-indicator-danger border-0 shadow-none">
+                                                            <i class="bx bx-x-circle"></i>
+                                                        </span>
+                                                    {% endif %}
+                                                    {% if event.type == "warning" %}
+                                                        <span class="timeline-indicator-advanced timeline-indicator-warning border-0 shadow-none">
+                                                            <i class="bx bx-info-circle"></i>
+                                                        </span>
+                                                    {% endif %}
+                                                    <div class="timeline-event ps-0 pb-0">
+                                                        <div class="timeline-header">
+                                                            <small class="text-{{ event.type }} text-uppercase fw-medium">{{ event.behavior }}</small>
+                                                        </div>
+                                                        <h6 class="mb-1">{{ event.driver }}</h6>
+                                                        <p class="text-muted mb-0">
+                                                            {{ event.time }}
+                                                        </p>
+                                                    </div>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mapbox Map container -->
+            <div class="col h-100 map-container">
+                <!-- Map -->
+                <div id="map" class="w-100 h-100"></div>
+            </div>
+
+            <!-- Overlay Hidden -->
+            <div class="app-overlay d-none"></div>
+        </div>
+    </div>
+
+{% endblock %}

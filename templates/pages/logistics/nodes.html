@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block page_scripts %}
+    <script src="/static/user_assets/js/app-logistics-dashboard.js"></script>
+{% endblock %}
+
+{% block content %}
+    <h4 class="py-3 mb-4">
+        <span class="text-muted fw-light">Logistics /</span> Hawk Nodes
+    </h4>
+
+    <!-- Card Border Shadow -->
+    <div class="row">
+        <div class="card">
+            <h5 class="card-header">Owned Tracker Nodes</h5>
+            <div class="table-responsive text-nowrap">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Status</th>
+                        <th>Vehicle</th>
+                        <th>Organization</th>
+                    </tr>
+                    </thead>
+                    <tbody class="table-border-bottom-0">
+                    {% for node in nodes %}
+                        <tr>
+                            <td><span class="fw-medium">{{ node.node_id }}</span>
+                            </td>
+                            <td>
+                                {% if node.is_online %}
+                                <span class="badge bg-label-primary me-1">Active</span>
+                                {% else %}
+                                <span class="badge bg-label-warning me-1">Offline</span><br>
+                                {% endif %}
+                            </td>
+                            <td>{{ node.vehicle.name|default:"Unassigned" }}</td>
+                            <td>{{ node.group.name }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!--/ Card Border Shadow -->
+
+
+
+{% endblock %}

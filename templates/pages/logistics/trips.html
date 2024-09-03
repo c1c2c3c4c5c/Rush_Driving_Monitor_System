@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block page_styles %}
+    <link rel="stylesheet" href="/static/user_assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css"/>
+    <link rel="stylesheet" href="/static/user_assets/vendor/libs/typeahead-js/typeahead.css"/>
+    <link rel="stylesheet" href="/static/user_assets/vendor/libs/select2/select2.css"/>
+    <link rel="stylesheet" href="/static/user_assets/vendor/libs/tagify/tagify.css"/>
+    <link rel="stylesheet" href="/static/user_assets/vendor/libs/bootstrap-select/bootstrap-select.css"/>
+    <link rel="stylesheet" href="/static/user_assets/vendor/libs/typeahead-js/typeahead.css"/>
+{% endblock %}
+{% block page_scripts %}
+    <script src="/static/user_assets/js/app-logistics-dashboard.js"></script>
+    <script src="/static/user_assets/vendor/libs/select2/select2.js"></script>
+    <script src="/static/user_assets/vendor/libs/tagify/tagify.js"></script>
+    <script src="/static/user_assets/vendor/libs/bootstrap-select/bootstrap-select.js"></script>
+    <script src="/static/user_assets/vendor/libs/typeahead-js/typeahead.js"></script>
+    <script src="/static/user_assets/vendor/libs/bloodhound/bloodhound.js"></script>
+    <script src="/static/user_assets/js/forms-selects.js"></script>
+    <script src="/static/user_assets/js/forms-selects-two.js"></script>
+    <script src="/static/user_assets/js/forms-tagify.js"></script>
+    <script src="/static/user_assets/js/forms-typeahead.js"></script>
+{% endblock %}
+
+{% block content %}
+    <h4 class="py-3 mb-4">
+        <span class="text-muted fw-light"></span> Trips
+    </h4>
+
+    <div class="row">
+
+        <div class="col-12">
+            <div class="card mb-4">
+                <form action="" method="POST">
+                    <h5 class="card-header">Add New Trip</h5>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Basic -->
+                            <div class="col-md-8 mb-4">
+                                <label for="select2Basic" class="form-label">Select Node</label>
+                                <select id="select2Basic" name="node" class="select2 form-select form-select-lg"
+                                        data-allow-clear="true">
+                                    {% for node in nodes %}
+                                        <option value="{{ node.id }}">{{ node.node_id }}
+                                            | {{ node.vehicle.name|default:"Unassigned" }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <input type="hidden" name="method" value="create"/>
+                            <div class="col-md-8 mb-4">
+                                <label for="select2Basicn" class="form-label">Select Driver</label>
+                                <select id="select2Basicn" name="driver" class="select2n form-select form-select-lg"
+                                        data-allow-clear="true">
+                                    {% for driver in drivers %}
+                                        <option value="{{ driver.id }}">{{ driver.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% csrf_token %}
+                            <div class="col-md-8 mb-4">
+                                <button type="submit" class="btn btn-success">Start Trip</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="card">
+                <h5 class="card-header">Current Trips</h5>
+                <div class="table-responsive text-nowrap">
+                    <table class="table table-striped">
+                        <thead>
+                        <tr>
+                            <th>Vehicle</th>
+                            <th>Vehicle Number</th>
+                            <th>Status</th>
+                            <th>Node</th>
+                            <th>Driver</th>
+                            <th>Start Time</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                        {% for trip in trips|dictsortreversed:"is_active" %}
+                            <tr>
+                                <td><span class="fw-medium">{{ trip.node.vehicle.name }}</span>
+                                </td>
+                                <td><span class="fw-medium">{{ trip.node.vehicle.number }}</span>
+                                </td>
+                                <td>
+                                    {% if trip.is_active %}
+                                        <span class="badge bg-label-primary me-1">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-label-warning me-1">Offline</span><br>
+                                    {% endif %}
+                                </td>
+                                <td>{{ trip.node.node_id }}</td>
+                                <td>{{ trip.driver.name }}</td>
+                                <td>{{ trip.start_time }}</td>
+                                <td>
+                                    {% if trip.is_active %}
+                                    <form action="" method="POST">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="method" value="delete"/>
+                                        <input type="hidden" name="trip_id" value="{{ trip.id }}"/>
+                                        <button type="submit" class="btn btn-danger">End Trip</button>
+                                    </form>
+                                    {% else %}
+                                        <span class="badge bg-label-warning me-1">Trip Ended</span><br>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+{% endblock %}
